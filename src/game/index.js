@@ -76,7 +76,7 @@ let Game = () => {
   const [cellsData, setCellsData] = useState({});
 
   useEffect(() => {
-    setSocket(socketIO("https://game-of-live-demo.herokuapp.com"));
+    setSocket(socketIO("127.0.0.1:5000"));
   }, []);
 
   useEffect(() => {
