@@ -67,7 +67,7 @@ This system implemented the following features:
 
 You need to install Node.JS before execute the above installation.
 
-## 5. Demo Link
+## 5. Testing
 This project used [Mocha.JS](https://mochajs.org/) for testing. You can test this project by the following step:
  1. Clone this project
  2. Open terminal and `cd` to this project
