@@ -24,7 +24,7 @@
     "start": "node ./app.js",
     "dev-start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "mocha",
     "eject": "react-scripts eject",
     "heroku-postbuild": "npm install && npm run build"
   },
@@ -42,5 +42,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "mocha": "^7.0.1",
+    "should": "^13.2.3"
   }
 }

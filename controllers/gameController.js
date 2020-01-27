@@ -2,7 +2,7 @@ const Game = require("../models/gameModel");
 const SocketAPI = require("./socketAPI");
 
 module.exports = (io) => {
-    const gameModel = new Game.GameModel(io);
+    const gameModel = new Game.GameModel(io, Game.GAME_BORAD_HEIGHT, Game.GAME_BORAD_WIDTH);
 
     io.on('connection', function(socket){
         let connectionId = socket.request.cookies['connect.sid'];

@@ -6,7 +6,8 @@
  2. System Configuration
  3. Features
  4. Installation
- 5. Demo Link
+ 5. Testing
+ 6. Demo Link
 
 ## 1. System Architecture
 This demo implemented by the following language and technology:
@@ -40,6 +41,7 @@ Case 2:
 
 ## 2. System Configuration
 
+ - In project folder: `src` stored all frontend source code, `controllers` and `models` stored all backend source code. `public` folder stored all images and html files.
  - Cookies and Session expire after 24 hours
  - Backend server update "next generation" every 1 second
  - Re-generate color to user if user first time enter the game or cookies and session expired.
@@ -66,4 +68,23 @@ This system implemented the following features:
 You need to install Node.JS before execute the above installation.
 
 ## 5. Demo Link
+This project used [Mocha.JS](https://mochajs.org/) for testing. You can test this project by the following step:
+ 1. Clone this project
+ 2. Open terminal and `cd` to this project
+ 3. `npm install`
+ 4. `npm run test`
+
+You will see this result:
+
+    # Test of GameModel
+        ✓ random generate color if user first time connect or cookies session expired
+        ✓ check 2 colors are same
+        ✓ check whether update data if user click cell
+        ✓ check case 1: Any live cell with fewer than two live neighbors dies, as if caused by under-population (1003ms)
+        ✓ check case 2: Any live cell with two or three live neighbors lives on to the next generation (1002ms)
+        ✓ check case 3: Any live cell with more than three live neighbors dies, as if by overcrowding (1003ms)
+        ✓ check case 4: Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction. (1002ms)
+
+## 6. Demo Link
 [https://game-of-live-demo.herokuapp.com/](https://game-of-live-demo.herokuapp.com/)
+

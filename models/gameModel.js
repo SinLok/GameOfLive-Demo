@@ -201,9 +201,12 @@ const PreDefinePattern = {
 }
 
 class GameModel{
-    constructor(io){
+    constructor(io, gameBoardHeight, gameBoardWidth){
+        this.gameBoardHeight = gameBoardHeight;
+        this.gameBoardWidth = gameBoardWidth
         this.EMPTY_CELL_COLOR = this._createRGB(0, 0, 0);
-        this.gameBoard = Array(GAME_BORAD_HEIGHT).fill().map(() => Array(GAME_BORAD_WIDTH).fill(this.EMPTY_CELL_COLOR));
+        this.gameBoard = Array(gameBoardHeight).fill().map(() => Array(gameBoardWidth).fill(this.EMPTY_CELL_COLOR));
+
         this.io = io;
         this.userColorMap = {};
     
@@ -218,7 +221,7 @@ class GameModel{
         return color1.red == color2.red && color1.green == color2.green && color1.blue == color2.blue;
     }
 
-    _generateRandomColor(connectionId){
+    _getUserColor(connectionId){
         // init color if user first time enter this game
         if(this.userColorMap[connectionId] == null){
             this.userColorMap[connectionId] = this._createRGB(
@@ -227,12 +230,12 @@ class GameModel{
                 Math.floor(Math.random()*256)
             )
         }
+
+        return this.userColorMap[connectionId];
     }
 
     onUserClickCell(connectionId, location){
-        this._generateRandomColor(connectionId);
-
-        this.gameBoard[location.row][location.col] = this.userColorMap[connectionId];
+        this.gameBoard[location.row][location.col] = this._getUserColor(connectionId);
         return { row: location.row, col: location.col, color: this.userColorMap[connectionId] };
     }
 
@@ -244,40 +247,42 @@ class GameModel{
         return new Promise((resolver) => setTimeout(resolver, ms));
     }
 
-    async _scheduleNextGeneration(){
-        while(true){
-            
-            let thisGenerationUpdate = [];
-            for(var row = 0; row < GAME_BORAD_HEIGHT; row++){
-                for(var col = 0; col < GAME_BORAD_WIDTH; col++){
-                    let {count, avgColor} = this.countAndAvgColorOfNeighbors(row, col);
+    _nextGeneration(){
+        let thisGenerationUpdate = [];
+        for(var row = 0; row < this.gameBoardHeight; row++){
+            for(var col = 0; col < this.gameBoardWidth; col++){
+                let {count, avgColor} = this.countAndAvgColorOfNeighbors(row, col);
 
-                    if(this._isSameColor(this.gameBoard[row][col], this.EMPTY_CELL_COLOR)){
-                        // Cell Die
-                        if(count == 3){
-                            // Case 4
-                            thisGenerationUpdate.push({row, col, color: avgColor});
-                        }
+                if(this._isSameColor(this.gameBoard[row][col], this.EMPTY_CELL_COLOR)){
+                    // Cell Die
+                    if(count == 3){
+                        // Case 4
+                        thisGenerationUpdate.push({row, col, color: avgColor});
+                    }
+                }else{
+                    // Cell Alive
+                    if(count == 2 || count == 3){
+                        // Case 2
+                        // Keep alive
                     }else{
-                        // Cell Alive
-                        if(count == 2 || count == 3){
-                            // Case 2
-                            // Keep alive
-                        }else{
-                            // Case 1 or Case 3
-                            thisGenerationUpdate.push({row, col, color: this.EMPTY_CELL_COLOR});
-                        }
+                        // Case 1 or Case 3
+                        thisGenerationUpdate.push({row, col, color: this.EMPTY_CELL_COLOR});
                     }
                 }
             }
+        }
 
-            // Update Game Board
-            for(var info of thisGenerationUpdate){
-                this.gameBoard[info.row][info.col] = info.color;
-            }
+        // Update Game Board
+        for(var info of thisGenerationUpdate){
+            this.gameBoard[info.row][info.col] = info.color;
+        }
 
-            this.io.emit(SocketAPI.UPDATE_CELLS_COLOR, thisGenerationUpdate);
+        return thisGenerationUpdate;
+    }
 
+    async _scheduleNextGeneration(){
+        while(true){
+            this.io.emit(SocketAPI.UPDATE_CELLS_COLOR, this._nextGeneration());
             await this._sleep(1000);
         }
     }
@@ -292,7 +297,7 @@ class GameModel{
                 let colIdx = c + colOffset;
 
                 if(rowIdx >= 0 && colIdx >= 0 && 
-                    rowIdx < GAME_BORAD_HEIGHT && colIdx < GAME_BORAD_WIDTH &&
+                    rowIdx < this.gameBoardHeight && colIdx < this.gameBoardWidth &&
                     !(rowOffset == 0 && colOffset == 0) &&
                     !this._isSameColor(this.gameBoard[rowIdx][colIdx], this.EMPTY_CELL_COLOR)){
                         count++;
@@ -312,10 +317,9 @@ class GameModel{
     }
 
     onPreDefinePatternSelected(connectionId, patternName){
-        this._generateRandomColor(connectionId);
-        let rowIdx = Math.floor(Math.random() * GAME_BORAD_HEIGHT);
-        let colIdx = Math.floor(Math.random() * GAME_BORAD_WIDTH);
-        let userColor = this.userColorMap[connectionId];
+        let rowIdx = Math.floor(Math.random() * this.gameBoardHeight);
+        let colIdx = Math.floor(Math.random() * this.gameBoardWidth);
+        let userColor = this._getUserColor(connectionId);
 
         let selectedPattern = PreDefinePattern[patternName];
         var updatedCells = [];
@@ -324,7 +328,7 @@ class GameModel{
             let updateRow = rowIdx + location.row;
             let updateCol = colIdx + location.col;
 
-            if(updateRow < GAME_BORAD_HEIGHT && updateCol < GAME_BORAD_WIDTH){
+            if(updateRow < this.gameBoardHeight && updateCol < this.gameBoardWidth){
                 this.gameBoard[updateRow][updateCol] = userColor;
                 updatedCells.push({ row: updateRow, col: updateCol, color: userColor });
             }
