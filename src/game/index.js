@@ -196,7 +196,7 @@ let Game = () => {
 
       <Segment inverted vertical style={{ padding: '4em 0em' }}>
         <Container textAlign='center'>
-          ©2019 by Reserved by Jack CHUI
+          ©2020 by Reserved by Jack CHUI
         </Container>
       </Segment>
     </div>
